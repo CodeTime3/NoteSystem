@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NoteSystemDao.DbItems
 {
-    public class Token
+    public class TokenDbItem
     {
         public int TokenId { get; set; }
         public int UserId { get; set; }
