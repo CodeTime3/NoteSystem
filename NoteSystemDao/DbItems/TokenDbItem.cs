@@ -12,5 +12,14 @@ namespace NoteSystemDao.DbItems
         public int UserId { get; set; }
         public string TokenValue { get; set; } = string.Empty;
         public DateTime TokenDate { get; set; }
+
+        public TokenDbItem() { }
+
+        public TokenDbItem(int userId, string tokenValue, DateTime tokenDate)
+        {
+            UserId = userId;
+            TokenValue = tokenValue;
+            TokenDate = tokenDate;
+        }
     }
 }
