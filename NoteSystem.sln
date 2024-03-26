@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteSystemDao", "NoteSystemDao\NoteSystemDao.csproj", "{EC3B4AFF-8D7F-4962-B53D-D95916B42407}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoteSystemDao", "NoteSystemDao\NoteSystemDao.csproj", "{EC3B4AFF-8D7F-4962-B53D-D95916B42407}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteSystemTest", "NoteSystemTest\NoteSystemTest.csproj", "{D4A1FB64-94AF-421E-ADDF-7F74487EDC8B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{EC3B4AFF-8D7F-4962-B53D-D95916B42407}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC3B4AFF-8D7F-4962-B53D-D95916B42407}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC3B4AFF-8D7F-4962-B53D-D95916B42407}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4A1FB64-94AF-421E-ADDF-7F74487EDC8B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4A1FB64-94AF-421E-ADDF-7F74487EDC8B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4A1FB64-94AF-421E-ADDF-7F74487EDC8B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4A1FB64-94AF-421E-ADDF-7F74487EDC8B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
