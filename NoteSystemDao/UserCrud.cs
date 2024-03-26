@@ -1,34 +1,22 @@
-﻿namespace NoteSystemDao
+﻿using MySql.Data.MySqlClient;
+using NoteSystemDao.Interfaces;
+
+namespace NoteSystemDao
 {
-    public class UserCrud
+    public class UserCrud : ICreateUpdateDelete<UserDbItem>
     {
-        private readonly SqlConnection _connection;
-        public UserCrud(SqlConnection connection)
+        private readonly MySqlConnection _connection;
+        public UserCrud(MySqlConnection connection)
         {
             _connection = connection;
         }
 
         public int AddNewItem(UserDbItem user)
         {
-            string cmdTxt =
-                $@"
-                insert into games
-                (
-                    user_id,
-                    user_name,
-                    user_hash
-                ) 
-                values
-                (
-                    @user_id,
-                    @user_name,
-                    @user_hash
-                )
-                ";
+            string cmdTxt = $@"insert into users (user_name, user_hash) values (@user_name, @user_hash)";
 
-            using (var cmd = new SqlCommand(cmdTxt, _connection))
+            using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
-                cmd.Parameters.AddWithValue("@user_id", user.UserId);
                 cmd.Parameters.AddWithValue("@user_name", user.UserName);
                 cmd.Parameters.AddWithValue("@user_hash", user.UserHash);
 
@@ -40,7 +28,7 @@
         {
             var cmdTxt = $@"update users set user_name = @user_name, user_hash = @user_hash where user_id = @user_id";
 
-            using (var cmd = new SqlCommand(cmdTxt, _connection))
+            using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
                 cmd.Parameters.AddWithValue("@user_id", user.UserId);
                 cmd.Parameters.AddWithValue("@user_name", user.UserName);
@@ -54,7 +42,7 @@
         {
             var cmdTxt = $@"delete from users where user_id = @user_id"; 
 
-            using (var cmd = new SqlCommand(cmdTxt, _connection))
+            using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
                 cmd.Parameters.AddWithValue("@user_id", id);
 
