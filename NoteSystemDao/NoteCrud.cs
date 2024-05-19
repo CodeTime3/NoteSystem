@@ -11,13 +11,13 @@
         public int AddNewItem(NoteDbItem note)
         {
             var userId = GetUserId();
-            string cmdTxt = $@"insert into notes (user_id, note_title, note_text) values (@user_id, @note_title, @note_text)";
+            string cmdTxt = $@"insert into notes (UserId, NoteTitle, NoteText) values (@UserId, @NoteTitle, @NoteText)";
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
-                cmd.Parameters.AddWithValue("@user_id", userId);
-                cmd.Parameters.AddWithValue("@note_title", note.NoteText);
-                cmd.Parameters.AddWithValue("@note_text", note.NoteTitle);
+                cmd.Parameters.AddWithValue("@UserId", userId);
+                cmd.Parameters.AddWithValue("@NoteTitle", note.NoteText);
+                cmd.Parameters.AddWithValue("@NoteText", note.NoteTitle);
 
                 return cmd.ExecuteNonQuery();
             }
@@ -34,12 +34,12 @@
         public NoteDbItem[] GetItems(string strtTitle)
         {
             var notes = new List<NoteDbItem>();
-            var cmdTxt = $@"select note_title from notes where note_title LIKE BINARY @note_title";
+            var cmdTxt = $@"select NoteTitle from notes where NoteTitle LIKE BINARY @NoteTitle";
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
                 string searchTerm = "%" + strtTitle + "%";
-                cmd.Parameters.AddWithValue("@note_title", searchTerm);
+                cmd.Parameters.AddWithValue("@NoteTitle", searchTerm);
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -61,14 +61,14 @@
         public int UpdateItem(NoteDbItem note)
         {
             var userId = GetUserId();
-            var cmdTxt = $@"update notes set note_title = @note_title, note_text = @note_text where note_id = @note_id";
+            var cmdTxt = $@"update notes set NoteTitle = @NoteTitle, NoteText = @NoteText where NoteId = @NoteId";
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
-                cmd.Parameters.AddWithValue("@note_id", note.NoteId);
-                cmd.Parameters.AddWithValue("@user_id", userId);
-                cmd.Parameters.AddWithValue("@note_title", note.NoteTitle);
-                cmd.Parameters.AddWithValue("@note_text", note.NoteText);
+                cmd.Parameters.AddWithValue("@NoteId", note.NoteId);
+                cmd.Parameters.AddWithValue("@UserId", userId);
+                cmd.Parameters.AddWithValue("@NoteTitle", note.NoteTitle);
+                cmd.Parameters.AddWithValue("@NoteText", note.NoteText);
 
                 return cmd.ExecuteNonQuery();
             }
@@ -76,11 +76,11 @@
 
         public int DeleteItem(int id)
         {
-            var cmdTxt = $@"delete from notes where note_id = @note_id";
+            var cmdTxt = $@"delete from notes where NoteId = @NoteId";
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
-                cmd.Parameters.AddWithValue("@note_id", id);
+                cmd.Parameters.AddWithValue("@NoteId", id);
 
                 return cmd.ExecuteNonQuery();
             }
