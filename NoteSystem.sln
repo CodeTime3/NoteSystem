@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteSystemDao", "NoteSystemDao\NoteSystemDao.csproj", "{F63171A0-B8AC-433A-A586-13B96D3124CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoteSystemDao", "NoteSystemDao\NoteSystemDao.csproj", "{F63171A0-B8AC-433A-A586-13B96D3124CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteSystemTest", "NoteSystemTest\NoteSystemTest.csproj", "{0DDFD7F5-C816-44F2-914F-B99D5F1FF352}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NoteSystemTest", "NoteSystemTest\NoteSystemTest.csproj", "{0DDFD7F5-C816-44F2-914F-B99D5F1FF352}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NoteSystemWeb", "NoteSystemWeb\NoteSystemWeb.csproj", "{4FCC6241-D4D1-494D-9ACD-96B4F4B19D90}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{0DDFD7F5-C816-44F2-914F-B99D5F1FF352}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0DDFD7F5-C816-44F2-914F-B99D5F1FF352}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0DDFD7F5-C816-44F2-914F-B99D5F1FF352}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FCC6241-D4D1-494D-9ACD-96B4F4B19D90}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FCC6241-D4D1-494D-9ACD-96B4F4B19D90}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FCC6241-D4D1-494D-9ACD-96B4F4B19D90}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FCC6241-D4D1-494D-9ACD-96B4F4B19D90}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
