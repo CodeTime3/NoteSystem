@@ -1,7 +1,9 @@
 ﻿namespace NoteSystemDao.DbItems
 {
+    [NameTable("notes")]
     public class NoteDbItem
     {
+        [IgnoreColumn]
         public int NoteId { get; set; }
         public int UserId { get; set; }
         public string NoteTitle { get; set; }

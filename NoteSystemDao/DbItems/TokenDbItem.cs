@@ -1,7 +1,9 @@
 ﻿namespace NoteSystemDao.DbItems
 {
+    [NameTable("tokens")]
     public class TokenDbItem
     {
+        [IgnoreColumn]
         public int TokeId { get; set; }
         public int UserId { get; set; }
         public string TokenValue { get; set; }
