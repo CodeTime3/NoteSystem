@@ -5,3 +5,4 @@ global using Xunit;
 global using MySql.Data.MySqlClient;
 global using NoteSystemDao;
 global using NoteSystemDao.Interfaces;
+global using NoteSystemDao.Orm;
