@@ -1,8 +1,6 @@
-﻿using NoteSystemDao.Orm.MyAttributes;
-
-namespace NoteSystemDao.Orm
+﻿namespace NoteSystemDao.Orm
 {
-    public class GeneralCrud<T>
+    public class GeneralCrud
     {
         private readonly MySqlConnection _connection;
 
@@ -11,7 +9,7 @@ namespace NoteSystemDao.Orm
             _connection = connection;
         }
 
-        public int CreateItem(T item)
+        public int CreateItem<T>(T item)
         {
             Type type = item.GetType();
             NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
@@ -37,7 +35,8 @@ namespace NoteSystemDao.Orm
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
-                foreach (var property in properties)
+				_connection.Open();
+				foreach (var property in properties)
                 {
                     cmd.Parameters.AddWithValue($@"@{property.Name}", property.GetValue(item));
                 }
@@ -46,7 +45,67 @@ namespace NoteSystemDao.Orm
             }
         }
 
-        public T[] ReadAllItems(T item)
+        public T GetItem<T>(T item, object id)
+        {
+            Type type = typeof(T);
+            NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
+            PropertyInfo[] properties = type.GetProperties();
+
+            string selectString = "";
+
+            foreach (var property in properties)
+            {
+                if (property.GetCustomAttribute<SearchAttribute>() != null)
+                {
+                    selectString += /*"@" + */ property.Name;
+                }
+            }
+            
+            string cmdTxt = $@"select * from {tableOrm.Name} where {selectString} like binary '%{id}%'";
+
+            using (var cmd = new MySqlCommand(cmdTxt, _connection))
+            {
+                _connection.Open();
+                foreach (var property in properties)
+                {
+                    if (property.GetCustomAttribute<SearchAttribute>() == null)
+                    {
+                        cmd.Parameters.AddWithValue($@"@{property.Name}", property.GetValue(item));
+                    }
+                }
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        item = (T)Activator.CreateInstance(type);
+
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            string columnName = reader.GetName(i);
+
+                            PropertyInfo property = null;
+
+                            for (int j = 0; j < properties.Length; j++)
+                            {
+                                if (properties[j].Name == columnName)
+                                {
+                                    property = properties[j];
+                                    break;
+                                }
+                            }
+                            object value = reader[i];
+
+                            property.SetValue(item, Convert.ChangeType(value, property.PropertyType));
+                        }
+                    }
+                }
+            }
+
+            return item;
+        }
+
+        public T[] ReadAllItems<T>(T item)
         {
             List<T> items = new List<T>();
             Type type = typeof(T);
@@ -58,7 +117,8 @@ namespace NoteSystemDao.Orm
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
-                foreach (var property in properties)
+				_connection.Open();
+				foreach (var property in properties)
                 {
                     if (property.GetCustomAttribute<IgnoreColumnAttribute>() == null)
                     {
@@ -99,7 +159,7 @@ namespace NoteSystemDao.Orm
             return items.ToArray();
         }
 
-        public int UpdateItem(T item, int id)
+        public int UpdateItem<T>(T item, int id)
         {
             Type type = item.GetType();
             NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
@@ -133,7 +193,8 @@ namespace NoteSystemDao.Orm
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
-                foreach (var property in properties)
+				_connection.Open();
+				foreach (var property in properties)
                 {
                     if (property.GetCustomAttribute<IgnoreColumnAttribute>() != null)
                     {
@@ -150,7 +211,7 @@ namespace NoteSystemDao.Orm
             }
         }
 
-        public int DeleteItem(T item, int id)
+        public int DeleteItem<T>(T item, int id)
         {
             Type type = item.GetType();
             NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
@@ -170,7 +231,8 @@ namespace NoteSystemDao.Orm
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
-                foreach (var property in properties)
+				_connection.Open();
+				foreach (var property in properties)
                 {
                     if (property.GetCustomAttribute<IgnoreColumnAttribute>() != null)
                     {

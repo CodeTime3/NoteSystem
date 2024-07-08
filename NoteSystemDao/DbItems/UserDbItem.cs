@@ -5,6 +5,7 @@
     {
         [IgnoreColumn]
         public int UserId { get; set; }
+        [Search]
         public string UserName { get; set; }
         public string UserHash { get; set; }
 
