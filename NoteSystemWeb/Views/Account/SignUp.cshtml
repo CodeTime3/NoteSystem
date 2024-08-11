@@ -1,0 +1,19 @@
+﻿@model SignUpModel 
+
+@{
+}
+
+<div class="">
+	<h3>SignUp</h3>
+	<form class="" asp-action="SignUp" method="post">
+		<div>
+			<input type="text" asp-for="Username" required placeholder="Username" />
+		</div>
+		<div>
+			<input type="password" asp-for="Password" required placeholder="Password" />
+		</div>
+		<button>
+			SignUp
+		</button>
+	</form>
+</div>
