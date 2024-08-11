@@ -1,32 +1,11 @@
-using Microsoft.AspNetCore.Mvc;
-using NoteSystemWeb.Models;
-using System.Diagnostics;
-
 namespace NoteSystemWeb.Controllers
 {
-    public class HomeController : Controller
-    {
-        private readonly ILogger<HomeController> _logger;
-
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
-
+    public class HomeController(GeneralCrud crud) : Controller
+    {   
         public IActionResult Index()
         {
+            List<NoteDbItem> list = new List<NoteDbItem>();
             return View();
-        }
-
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
 }
