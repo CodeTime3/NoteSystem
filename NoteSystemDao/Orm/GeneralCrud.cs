@@ -8,13 +8,12 @@
         {
             _connection = connection;
         }
-
+        
         public int CreateItem<T>(T item)
         {
             Type type = item.GetType();
             NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
             PropertyInfo[] properties = type.GetProperties();
-
             string columnList = "";
             string parameterList = "(";
 
@@ -35,7 +34,11 @@
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
-				_connection.Open();
+				if (_connection.State == ConnectionState.Closed)
+				{
+					_connection.Open();
+				}
+
 				foreach (var property in properties)
                 {
                     cmd.Parameters.AddWithValue($@"@{property.Name}", property.GetValue(item));
@@ -45,7 +48,7 @@
             }
         }
 
-        public T GetItem<T>(T item, object id)
+        public T ReadItem<T>(T item, object id)
         {
             Type type = typeof(T);
             NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
@@ -57,15 +60,19 @@
             {
                 if (property.GetCustomAttribute<SearchAttribute>() != null)
                 {
-                    selectString += /*"@" + */ property.Name;
+                    selectString += property.Name;
                 }
             }
             
             string cmdTxt = $@"select * from {tableOrm.Name} where {selectString} like binary '%{id}%'";
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
-            {
-                _connection.Open();
+			{
+                if (_connection.State == ConnectionState.Closed)
+                {   
+                    _connection.Open();
+                }               
+
                 foreach (var property in properties)
                 {
                     if (property.GetCustomAttribute<SearchAttribute>() == null)
@@ -104,6 +111,74 @@
 
             return item;
         }
+        
+        public T[] ReadItems<T> (T item, object id)
+        {
+            List<T> items = new List<T>();
+            Type type = typeof (T);
+
+			NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
+			PropertyInfo[] properties = type.GetProperties();
+
+            string selectString = "";
+
+            foreach (var property in properties)
+            {
+                if (property.GetCustomAttribute<SearchAttribute>() != null)
+                {
+                    selectString += property.Name;
+                }
+            }
+
+            string cmdTxt = $@"select * from {tableOrm.Name} where {selectString} = {id}";
+
+            using (var cmd = new MySqlCommand(cmdTxt, _connection))
+            {
+				if (_connection.State == ConnectionState.Closed)
+				{
+					_connection.Open();
+				}
+
+                foreach (var property in properties)
+                {
+                    if (property.GetCustomAttribute<SearchAttribute>() == null)
+                    {
+                        cmd.Parameters.AddWithValue($@"@{property.Name}", property.GetValue(item));
+                    }
+                }      
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read()) 
+                    {
+                        T newItem = (T)Activator.CreateInstance(type);
+
+                        for (int i = 0; i < reader.FieldCount; i++)
+                        {
+                            string columnName = reader.GetName(i);
+
+                            PropertyInfo property = null;
+
+                            for (int j = 0; j < properties.Length; j++)
+                            {
+                                if (properties[j].Name == columnName)
+                                {
+                                    property = properties[j];
+                                    break;
+                                }
+                            }
+                            object value = reader[i];
+
+                            property.SetValue(newItem, Convert.ChangeType(value, property.PropertyType));
+                        }
+
+                        items.Add(newItem);
+                    }
+                }          
+			}
+
+            return items.ToArray();
+		}
 
         public T[] ReadAllItems<T>(T item)
         {
@@ -117,7 +192,11 @@
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
-				_connection.Open();
+				if (_connection.State == ConnectionState.Closed)
+				{
+					_connection.Open();
+				}
+
 				foreach (var property in properties)
                 {
                     if (property.GetCustomAttribute<IgnoreColumnAttribute>() == null)
@@ -193,7 +272,11 @@
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
-				_connection.Open();
+				if (_connection.State == ConnectionState.Closed)
+				{
+					_connection.Open();
+				}
+
 				foreach (var property in properties)
                 {
                     if (property.GetCustomAttribute<IgnoreColumnAttribute>() != null)
@@ -231,7 +314,11 @@
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
-				_connection.Open();
+				if (_connection.State == ConnectionState.Closed)
+				{
+					_connection.Open();
+				}
+
 				foreach (var property in properties)
                 {
                     if (property.GetCustomAttribute<IgnoreColumnAttribute>() != null)
