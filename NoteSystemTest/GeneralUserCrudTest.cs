@@ -43,10 +43,25 @@
                 UserDbItem user = new UserDbItem();
                 List<UserDbItem> users = new List<UserDbItem>();
                 _generalCrud = new GeneralCrud(connection);
-                user = _generalCrud.GetItem(_user, "pippo");
+                user = _generalCrud.ReadItem(_user, "pippo");
                 users.Add(user); 
 
                 Assert.Equal(1, users.Count);
+            }
+        }
+
+        [Fact]
+        public void ReadItems_should_work()
+        {
+            using (var connection = _connection)
+            {
+                connection.Open();
+                NoteDbItem note = new NoteDbItem();
+                NoteDbItem[] notes = new NoteDbItem[30];
+                _generalCrud = new GeneralCrud(connection);
+                notes = _generalCrud.ReadItems(note, 3);
+
+                Assert.Equal(2, notes.Length);
             }
         }
 
