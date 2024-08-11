@@ -5,6 +5,7 @@
     {
         [IgnoreColumn]
         public int NoteId { get; set; }
+        [Search]
         public int UserId { get; set; }
         public string NoteTitle { get; set; }
         public string NoteText { get; set; }
