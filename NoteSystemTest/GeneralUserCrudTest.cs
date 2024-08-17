@@ -5,7 +5,7 @@
         private static readonly string _connectionString = "server=localhost;uid=root;pwd=CT22d03p06;database=notesystem";
         private readonly MySqlConnection _connection = new MySqlConnection(_connectionString);
         private GeneralCrud _generalCrud;
-        private UserDbItem _user = new UserDbItem { UserName = "pluto", UserHash = "pippo" };
+        private UserDbItem _user = new UserDbItem { UserName = "pluto25", UserHash = "pippo25" };
 
         [Fact]
         public void CreateItem_should_work()
