@@ -6,18 +6,26 @@ namespace NoteSystemWeb.Controllers
         public IActionResult CreateNote(string noteTitle, string noteText)
         {
 			var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(userIdString is null)
+            {
+                return Json(new {success = true, messagge = "the user is not logged"});
+            }
             var userId = int.Parse(userIdString);
 
 			NoteDbItem note = new NoteDbItem(userId, noteTitle, noteText);
             crud.CreateItem(note);
 
-            return Json( new {success = true, messagge = "added note"});
+            return Json(new {success = true, messagge = "added note"});
         }
 
         [HttpGet]
         public IActionResult ReadNotes()
         {   
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(userIdString is null)
+            {
+                return Json(new {success = true, messagge = "0 notes"});
+            }
             var userId = int.Parse(userIdString);
 
             NoteDbItem note = new NoteDbItem();
@@ -34,12 +42,16 @@ namespace NoteSystemWeb.Controllers
         public IActionResult UpdateNote(int noteId, string noteTitle, string noteText)
         {   
 			var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(userIdString is null)
+            {
+                return Json(new {success = true, messagge = "the user is not logged"});
+            }
             var userId = int.Parse(userIdString);
 
             NoteDbItem note = new NoteDbItem(noteId, userId, noteTitle, noteText);
             crud.UpdateItem(note, noteId);
 
-            return Json( new {success = true});
+            return Json( new {success = true, message = "modified note"});
         }
 
         [HttpDelete]
@@ -48,7 +60,7 @@ namespace NoteSystemWeb.Controllers
             NoteDbItem note = new NoteDbItem();
             crud.DeleteItem(note, noteId);
 
-            return Json( new {success = true});
+            return Json( new {success = true, message = "deleted note"});
         }
 
         [HttpGet]
