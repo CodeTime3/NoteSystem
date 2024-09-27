@@ -2,7 +2,7 @@
 {
     [NameTable("notes")]
     public class NoteDbItem
-    {
+    {   
         [IgnoreColumn]
         public int NoteId { get; set; }
         [Search]
@@ -11,6 +11,14 @@
         public string NoteText { get; set; }
 
         public NoteDbItem() { }
+
+        public NoteDbItem (int noteId, int userId, string noteTitle, string noteText)
+        {
+            NoteId = noteId;
+            UserId = userId;
+            NoteTitle = noteTitle;
+            NoteText = noteText;
+        }
 
         public NoteDbItem (int userId, string noteTitle, string noteText)
         {
