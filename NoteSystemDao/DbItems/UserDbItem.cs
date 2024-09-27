@@ -2,7 +2,8 @@
 {
     [NameTable("users")]
     public class UserDbItem
-    {
+    {   
+        [IgnoreColumn]
         public int UserId { get; set; }
         [Search]
         public string UserName { get; set; }
