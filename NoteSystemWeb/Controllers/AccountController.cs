@@ -14,7 +14,7 @@
             {
                 var claims = new List<Claim>
                 {   
-                    new Claim(ClaimTypes.Name, user.UserId.ToString()),
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                     new Claim(ClaimTypes.Name, user.UserName)
                 };
 
@@ -26,10 +26,12 @@
                     new ClaimsPrincipal(claimsIdentity), 
                     authProperties);
 
+                HttpContext.Session.SetString("UserId", user.UserId.ToString());
+
                 return RedirectToAction("Index", "Home");
             }
 
-            throw new Exception("incorect credential");
+            return RedirectToAction("Login");
         }
 
         [HttpPost]
@@ -55,7 +57,30 @@
                 new ClaimsPrincipal(claimsIdentity), 
                 authProperties);
 
+            HttpContext.Session.SetString("UserId", user.UserId.ToString());
+
             return RedirectToAction("Index", "Home");
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme);
+            
+            return RedirectToAction("Login");
+        }
+
+        public async Task<IActionResult> DeleteAccount()
+        {   
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = int.Parse(userIdString);
+
+            //ToDo: prima cancellare tutte le note e poi l'utente nello stesso metodo 
+
+            UserDbItem user = new UserDbItem();
+            crud.DeleteItem(user, userId);
+
+            return RedirectToAction("Login");
         }
 
         [HttpGet]
