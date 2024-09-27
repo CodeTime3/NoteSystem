@@ -103,7 +103,20 @@
             {
                 connection.Open();
                 _generalCrud = new GeneralCrud(connection);
-                int result = _generalCrud.DeleteItem(_user, 11);
+                int result = _generalCrud.DeleteItem(_user, 6);
+
+                Assert.Equal(1, result);
+            }
+        }
+
+        [Fact]
+        public void DeleteItems_should_work()
+        {
+            using (var connection = _connection)
+            {
+                connection.Open();
+                _generalCrud = new GeneralCrud(connection);
+                int result = _generalCrud.DeleteItems(_note, 9);
 
                 Assert.Equal(1, result);
             }
