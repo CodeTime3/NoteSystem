@@ -1,5 +1,3 @@
-using MySql.Data.MySqlClient;
-
 namespace NoteSystemWeb
 {
     public class Program
@@ -15,7 +13,10 @@ namespace NoteSystemWeb
             // Add services to the container.
             builder.Services.AddControllersWithViews();
 
-            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).
+			builder.Services.AddDistributedMemoryCache();
+			builder.Services.AddSession();
+
+			builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme).
                 AddCookie(
                     options => 
                     {
@@ -39,7 +40,8 @@ namespace NoteSystemWeb
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseSession();
+            
             app.UseAuthentication();
 
             app.MapControllerRoute(
