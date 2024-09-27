@@ -42,10 +42,11 @@
             string hash = passwordHasher.HashPassword(user, signUp.Password);
             user = new UserDbItem(signUp.Username, hash);
             crud.CreateItem(user);
+            user = crud.ReadItem(user, signUp.Username);
             
             var claims = new List<Claim>
             {   
-                new Claim(ClaimTypes.Name, user.UserId.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName)
             };
 
@@ -73,9 +74,14 @@
         public async Task<IActionResult> DeleteAccount()
         {   
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if(userIdString is null)
+            {
+                return Json(new {success = true, messagge = "the user is not logged"});
+            }
             var userId = int.Parse(userIdString);
 
-            //ToDo: prima cancellare tutte le note e poi l'utente nello stesso metodo 
+            NoteDbItem note = new NoteDbItem(); 
+            crud.DeleteItems(note, userId);
 
             UserDbItem user = new UserDbItem();
             crud.DeleteItem(user, userId);
