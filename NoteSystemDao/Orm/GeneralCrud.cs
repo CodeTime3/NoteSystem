@@ -330,5 +330,42 @@
                 return cmd.ExecuteNonQuery();
             }
         }
+
+        public int DeleteItems<T>(T item, int id)
+        {
+            Type type = item.GetType();
+            NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
+            PropertyInfo[] properties = type.GetProperties();
+
+            string columnId = "";
+
+            foreach (var property in properties)
+            {
+                if (property.GetCustomAttribute<SearchAttribute>() != null)
+                {
+                    columnId += property.Name;
+                }
+            }
+
+            var cmdTxt = $@"delete from {tableOrm.Name} where {columnId} = @{columnId}";
+
+            using (var cmd = new MySqlCommand(cmdTxt, _connection))
+            {
+				if (_connection.State == ConnectionState.Closed)
+				{
+					_connection.Open();
+				}
+
+				foreach (var property in properties)
+                {
+                    if (property.GetCustomAttribute<SearchAttribute>() != null)
+                    {
+                        cmd.Parameters.AddWithValue($@"@{columnId}", id);
+                    }
+                }
+
+                return cmd.ExecuteNonQuery();
+            }
+        }
     }
 }
