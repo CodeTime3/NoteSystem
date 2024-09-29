@@ -27,8 +27,7 @@
         const addButton = document.getElementById('add-button');
         const formContainer = document.getElementById('form-container');
         const fetchForm = document.getElementById('fetch-form');
-        //const edit = document.getElementsByClassName('edit');
-        //const delete = document.getElementsByClassName('delete');
+        const createForm = document.getElementById('create-form');
 
         fetch('http://localhost:5037/Home/ReadNotes')
             .then(response => {
@@ -129,6 +128,7 @@
             .then(data => {
                 removeChildrenElement(fetchForm);
                 formContainer.classList.add('popup');
+                createForm.reset();
                 getAllData('http://localhost:5037/Home/ReadNotes');
             })
         });
