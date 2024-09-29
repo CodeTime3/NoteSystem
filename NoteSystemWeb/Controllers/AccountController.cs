@@ -11,7 +11,7 @@
             var hash = (int)passwordHasher.VerifyHashedPassword(user, user.UserHash, login.Password);
 
             if (user.UserName.Equals(login.Username) && hash == 1)
-            {
+            {   
                 var claims = new List<Claim>
                 {   
                     new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
@@ -31,7 +31,12 @@
                 return RedirectToAction("Index", "Home");
             }
 
-            return RedirectToAction("Login");
+            if(login.IsValid)
+            {
+                login.IsValid = false;
+            }
+
+            return View(login);
         }
 
         [HttpPost]
@@ -40,6 +45,18 @@
             PasswordHasher<UserDbItem> passwordHasher = new PasswordHasher<UserDbItem>();
             UserDbItem user = new UserDbItem();
             string hash = passwordHasher.HashPassword(user, signUp.Password);
+            var users = crud.ReadAllItems(user);
+            foreach (var usr in users)
+            {
+                if(usr.UserName.Equals(signUp.Username))
+                {   
+                    if(signUp.IsValid)
+                    {
+                        signUp.IsValid = false;
+                    }
+                    return View(signUp);
+                }
+            }
             user = new UserDbItem(signUp.Username, hash);
             crud.CreateItem(user);
             user = crud.ReadItem(user, signUp.Username);
@@ -76,7 +93,7 @@
             var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if(userIdString is null)
             {
-                return Json(new {success = true, messagge = "the user is not logged"});
+                return RedirectToAction("Login");
             }
             var userId = int.Parse(userIdString);
 
