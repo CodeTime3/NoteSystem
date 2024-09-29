@@ -1,8 +1,5 @@
 ﻿@model LoginModel
 
-@{
-}
-
 <div class="">
 	<h3>Login</h3>
 	<form class="" asp-action="Login" method="post">
@@ -12,8 +9,14 @@
 		<div>
 			<input type="password" asp-for="Password" required placeholder="Password" />
 		</div>
+		@if (!Model.IsValid)
+		{
+			<div>
+				<span>Incorrect username or password</span>
+			</div>
+		}
 		<div>
-			<p>non hai un'account?<a asp-action="SignUp">Clicca qui</a></p>
+			<p>Don't have an account?<a asp-action="SignUp">Click here</a></p>
 		</div>
 		<button>
 			Login
