@@ -14,8 +14,9 @@ namespace NoteSystemWeb.Controllers
 
 			NoteDbItem note = new NoteDbItem(userId, noteTitle, noteText);
             crud.CreateItem(note);
+            note = crud.ReadItem(note, userId);
 
-            return Json(new {success = true, messagge = "added note"});
+            return Json(note);
         }
 
         [HttpGet]
@@ -51,7 +52,7 @@ namespace NoteSystemWeb.Controllers
             NoteDbItem note = new NoteDbItem(noteId, userId, noteTitle, noteText);
             crud.UpdateItem(note, noteId);
 
-            return Json( new {success = true, message = "modified note"});
+            return Json(note);
         }
 
         [HttpDelete]
@@ -60,7 +61,7 @@ namespace NoteSystemWeb.Controllers
             NoteDbItem note = new NoteDbItem();
             crud.DeleteItem(note, noteId);
 
-            return Json( new {success = true, message = "deleted note"});
+            return Json(noteId);
         }
 
         [HttpGet]
