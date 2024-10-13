@@ -1,25 +1,26 @@
 ﻿@model LoginModel
 
-<div class="">
-	<h3>Login</h3>
-	<form class="" asp-action="Login" method="post">
-		<div>
-			<input type="text" asp-for="Username" required placeholder="Username" />
-		</div>
-		<div>
-			<input type="password" asp-for="Password" required placeholder="Password" />
-		</div>
-		@if (!Model.IsValid)
-		{
-			<div>
-				<span>Incorrect username or password</span>
+<div class="container-body">
+	<form class="form" asp-action="Login" method="post">
+		<div class="form-conatiner">
+			<div class="input-container">
+				<input type="text" asp-for="Username" required placeholder="Username" />
 			</div>
-		}
-		<div>
-			<p>Don't have an account?<a asp-action="SignUp">Click here</a></p>
+			<div class="input-container">
+				<input type="password" asp-for="Password" required placeholder="Password" />
+			</div>
+			@if (!Model.IsValid)
+			{
+				<div class="error-message">
+					<span>Incorrect username or password</span>
+				</div>
+			}
+			<div class="action-link">
+				<span>Don't have an account? <a asp-action="SignUp">Click here</a></span>
+			</div>
+			<button class="button">
+				Login
+			</button>
 		</div>
-		<button>
-			Login
-		</button>
 	</form>
 </div>

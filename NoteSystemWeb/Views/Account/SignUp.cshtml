@@ -1,25 +1,26 @@
 ﻿@model SignUpModel 
 
-<div class="">
-	<h3>SignUp</h3>
-	<form class="" asp-action="SignUp" method="post">
-		<div>
-			<input type="text" asp-for="Username" required placeholder="Username" />
-		</div>
-		<div>
-			<input type="password" asp-for="Password" required placeholder="Password" />
-		</div>
-		@if (!Model.IsValid)
-		{
-			<div>
-				<span>the username already exists</span>
+<div class="container-body">
+	<form class="form" asp-action="SignUp" method="post">
+		<div class="form-conatiner">
+			<div class="input-container">
+				<input type="text" asp-for="Username" required placeholder="Username" />
 			</div>
-		}
-		<div>
-			<p>do you already have an account?<a asp-action="Login">Click here</a></p>
+			<div class="input-container">
+				<input type="password" asp-for="Password" required placeholder="Password" />
+			</div>
+			@if (!Model.IsValid)
+			{
+				<div class="error-message">
+					<span>The username already exists</span>
+				</div>
+			}
+			<div class="action-link">
+				<span>Do you already have an account? <a asp-action="Login">Click here</a></span>
+			</div>
+			<button class="button">
+				SignUp
+			</button>
 		</div>
-		<button>
-			SignUp
-		</button>
 	</form>
 </div>
