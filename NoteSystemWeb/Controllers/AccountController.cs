@@ -8,6 +8,17 @@
             PasswordHasher<UserDbItem> passwordHasher = new PasswordHasher<UserDbItem>();
             UserDbItem user = new UserDbItem();
             user = crud.ReadItem(user, login.Username);
+            
+            if(user.UserName is null || user.UserHash is null)
+            {
+                if(login.IsValid)
+                {
+                    login.IsValid = false;
+                }
+
+                return View(login);
+            }
+
             var hash = (int)passwordHasher.VerifyHashedPassword(user, user.UserHash, login.Password);
 
             if (user.UserName.Equals(login.Username) && hash == 1)
