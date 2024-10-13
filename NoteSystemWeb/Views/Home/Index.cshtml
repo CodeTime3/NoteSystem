@@ -6,107 +6,44 @@
 
 </form>
 
-<div class="" id="button-container">
-    <button id="add-button">+</button>
+<div id="button-container">
+    <i class="color bi bi-plus-lg"></i>    
 </div>
 
 <div class="popup" id="form-container">
-    <div>
-        <h3>insert new note</h3>
-    </div>
-    <form id="create-form">
-        <input type="text" id="title" name="noteTitle" placeholder="Title">
-        <input type="text" id="text" name="noteText" placeholder="Text">
-        <button type="submit">add</button>
+    <form class="form" id="create-form">
+        <div class="input-container">
+            <input type="text" id="title" name="noteTitle" placeholder="Title">
+        </div>
+        <div class="input-container">
+            <input type="text" id="text" name="noteText" placeholder="Text">
+        </div>
+        <button type="submit" class="button">Add</button>
     </form>
 </div>
 
 @section Scripts
 {
     <script>
-        const addButton = document.getElementById('add-button');
+        const addButton = document.getElementById('button-container');
         const formContainer = document.getElementById('form-container');
         const fetchForm = document.getElementById('fetch-form');
         const createForm = document.getElementById('create-form');
 
-        fetch('http://localhost:5037/Home/ReadNotes')
-            .then(response => {
-                return response.json();
-            })
-            .then(data => {
-                const obj = data.notes;
-
-                for(let i = 0; i < obj.length; i++){
-                    createCard(obj[i]);
-
-                    const editBtn = document.getElementsByClassName('edit');
-                    const deleteBtn = document.getElementsByClassName('delete');
-
-                    editBtn[i].addEventListener('click', function(e){
-                        e.preventDefault();
-
-                        const noteId = document.getElementsByClassName('note-id');
-                        const noteTitle = document.getElementsByClassName('note-title');
-                        const noteText = document.getElementsByClassName('note-text');
-
-                        fetch('http://localhost:5037/Home/UpdateNote', {
-                            method: 'PUT',
-                            headers: {
-                                "Content-Type": "application/x-www-form-urlencoded",
-                            },
-                            body: new URLSearchParams({
-                                noteId: noteId[i].value,
-                                noteTitle: noteTitle[i].value,
-                                noteText: noteText[i].value,
-                            }),
-                        })
-                        .then( response => {
-                            if (!response.ok) {
-                                throw new Error("Errore nella risposta: " + response.statusText);
-                            }
-
-                            return response.json();
-                        })
-                        .then(data => {
-                            removeChildrenElement(fetchForm);
-                            getAllData('http://localhost:5037/Home/ReadNotes');
-                        })
-                    });
-                    
-                    deleteBtn[i].addEventListener('click', function(e){
-                        e.preventDefault();
-
-                        const noteId = document.getElementsByClassName('note-id');
-
-                        fetch('http://localhost:5037/Home/DeleteNote', {
-                            method: 'DELETE',
-                            headers: {
-                                "Content-Type": "application/x-www-form-urlencoded",
-                            },
-                            body: new URLSearchParams({
-                                noteId: noteId[i].value
-                            }),
-                        })
-                        .then( response => {
-                            if (!response.ok) {
-                                throw new Error("Errore nella risposta: " + response.statusText);
-                            }
-
-                            return response.json();
-                        })
-                        .then(data => {
-                            removeChildrenElement(fetchForm);
-                            getAllData('http://localhost:5037/Home/ReadNotes');
-                        });
-                    });
-                }
-            });
+        getAllData('http://localhost:5037/Home/ReadNotes');
 
         formContainer.addEventListener('submit', function(e){
             e.preventDefault();
 
             const noteTitle = document.getElementById('title').value;
             const noteText = document.getElementById('text').value;
+            
+            formContainer.classList.add('popup');
+            createNote(noteTitle, noteText);
+            createForm.reset();
+        });
+
+        function createNote(noteTitle, noteText){
 
             fetch('http://localhost:5037/Home/CreateNote', {
                 method: 'POST',
@@ -126,15 +63,82 @@
                 return response.json();
             })
             .then(data => {
-                removeChildrenElement(fetchForm);
-                formContainer.classList.add('popup');
-                createForm.reset();
-                getAllData('http://localhost:5037/Home/ReadNotes');
-            })
-        });
 
+                createCard(data);
+            })
+        }
+
+        function editNote(noteId, noteTitle, noteText){
+
+            fetch('http://localhost:5037/Home/UpdateNote', {
+                method: 'PUT',
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({
+                    noteId: noteId,
+                    noteTitle: noteTitle,
+                    noteText: noteText,
+                }),
+            })
+            .then( response => {
+                if (!response.ok) {
+                    throw new Error("Errore nella risposta: " + response.statusText);
+                }
+
+                return response.json();
+            })
+            .then(data => {
+
+                const id = document.querySelector(`.note-id[value="${data.noteId}"]`);
+                const parent = id.parentNode;
+                const children = parent.children;
+
+                const titleContainer = children[1];
+                const title = titleContainer.firstChild;
+                title.innerHTML = data.noteTitle;
+
+                const textContainer = children[2];
+                const text = textContainer.firstChild;
+                text.innerHTML = data.noteText;
+            });
+        }
+
+        function deleteNote(noteId){
+
+            fetch('http://localhost:5037/Home/DeleteNote', {
+                method: 'DELETE',
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded",
+                },
+                body: new URLSearchParams({
+                    noteId: noteId
+                }),
+            })
+            .then( response => {
+                if (!response.ok) {
+                    throw new Error("Errore nella risposta: " + response.statusText);
+                }
+
+                return response.json();
+            })
+            .then(data => {
+
+                const id = document.querySelector(`.note-id[value="${data}"]`);
+                const parent = id.parentNode;
+                parent.remove();
+            });
+        }
+        
         addButton.addEventListener('click', function(){
-            formContainer.classList.remove('popup');
+
+            if(formContainer.classList[0] == 'popup'){
+
+                formContainer.classList.remove('popup');
+            }else {
+
+                formContainer.classList.add('popup');
+            }
         });
 
         function getAllData(url){
@@ -151,18 +155,19 @@
             });
         }
 
-        function removeChildrenElement(dadElement) {
-            let children = dadElement.childNodes;
-
-            while (children.length > 0) {
-                dadElement.removeChild(children[0]);
-            }
-        }
-
         function createCard(data){
             
-            const div = document.createElement('div');
-            div.className = '';
+            const container = document.createElement('div');
+            container.className = 'card col-33';
+
+            const inputContainerTitle = document.createElement('div');
+            inputContainerTitle.className = 'input-container';
+
+            const inputContainerText = document.createElement('div');
+            inputContainerText.className = 'input-container';
+
+            const buttonContainer = document.createElement('div');
+            buttonContainer.className = 'edit-delete-container';
 
             const inputId = document.createElement('input');
             inputId.type = 'hidden';
@@ -170,15 +175,41 @@
             inputId.value = data.noteId;
             inputId.className = 'note-id';    
 
-            const buttonEdit = document.createElement('button');
-            buttonEdit.type = 'submit';
-            buttonEdit.innerHTML = 'E';
-            buttonEdit.className = 'edit';
+            const editBtn = document.createElement('button');
+            editBtn.type = 'submit';
+            editBtn.innerHTML = 'Edit';
+            editBtn.className = 'button edit';
+            editBtn.addEventListener('click', function(e){
+                e.preventDefault();
 
-            const buttonDelete = document.createElement('button');
-            buttonDelete.type = 'submit';
-            buttonDelete.innerHTML = 'D';
-            buttonDelete.className = 'delete';
+                const btnContainer = editBtn.parentNode;
+                const parent = btnContainer.parentNode;
+                const children = parent.children;
+                const noteId = children[0];
+
+                const titleContainer = children[1];
+                const noteTitle = titleContainer.firstChild;
+
+                const textContainer = children[2];
+                const noteText = textContainer.firstChild;
+
+                editNote(noteId.value, noteTitle.value, noteText.value);
+            });
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'submit';
+            deleteBtn.innerHTML = 'Delete';
+            deleteBtn.className = 'button delete';
+            deleteBtn.addEventListener('click', function(e){
+                e.preventDefault();
+                
+                const btnContainer = deleteBtn.parentNode;
+                const parent = btnContainer.parentNode;
+                const id = parent.children;
+                const noteId = id[0];
+                
+                deleteNote(noteId.value);
+            });
 
             const inputTitle = document.createElement('input');
             inputTitle.type = 'text';
@@ -192,12 +223,16 @@
             inputText.value = data.noteText;
             inputText.className = 'note-text';
 
-            div.appendChild(inputId);
-            div.appendChild(inputTitle);
-            div.appendChild(buttonEdit);
-            div.appendChild(buttonDelete);
-            div.appendChild(inputText);
-            fetchForm.appendChild(div);
+            container.appendChild(inputId);
+            inputContainerTitle.appendChild(inputTitle);
+            container.appendChild(inputContainerTitle);
+            inputContainerText.appendChild(inputText);
+            container.appendChild(inputContainerText);
+            buttonContainer.appendChild(editBtn);
+            buttonContainer.appendChild(deleteBtn);
+            container.appendChild(buttonContainer);
+
+            fetchForm.appendChild(container);
         }
     </script>
 }
