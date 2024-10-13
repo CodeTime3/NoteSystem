@@ -20,3 +20,115 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+/*stile login/signup*/
+.container-body {
+  width: 100%;  
+  min-height: 85vh;  
+  display: flex; 
+  flex-direction: column;
+  justify-content: center; 
+  align-items: center; 
+}
+
+.form {
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  background-color: #181818;
+}
+
+.form-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.input-container {
+  margin-bottom: 15px;
+}
+
+.input-container input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 15px;
+}
+
+.action-link {
+  margin: 15px 0;
+  text-align: center;
+}
+
+.action-link span {
+
+  color: #e5e7eb;
+}
+
+.action-link a {
+  text-decoration: none;
+  color: #666666;
+}
+
+.button {
+  padding: 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #01a7fa;
+  color: #e5e7eb;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/*edit & delete*/
+.edit {
+
+  background-color: rgb(10, 186, 10);
+}
+
+.delete {
+
+  background-color: red;
+}
+
+/*grid system*/
+#fetch-form{
+
+  display: flex;
+  padding: 10px;
+  flex-wrap: wrap;
+}
+
+.card {
+
+  background-color: #181818;
+  border-radius: 10px;
+  margin: 7.5px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.edit-delete-container{
+
+  display: flex;
+  justify-content: flex-start;
+}
+
+.edit-delete-container button {
+
+  margin-right: 10px;
+}
+
+.col-33{ width: calc(33.33% - 15px) }
+
+@media (max-width: 768px){
+
+  .col-33{ width: 100%; }
+}
