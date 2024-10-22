@@ -19,14 +19,13 @@
                 return View(login);
             }
 
-            var hash = (int)passwordHasher.VerifyHashedPassword(user, user.UserHash, login.Password);
+            var hash = passwordHasher.VerifyHashedPassword(user, user.UserHash, login.Password);
 
-            if (user.UserName.Equals(login.Username) && hash == 1)
+            if (user.UserName.Equals(login.Username) && hash is PasswordVerificationResult.Success)
             {   
                 var claims = new List<Claim>
                 {   
-                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                    new Claim(ClaimTypes.Name, user.UserName)
+                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
                 };
 
                 var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -36,8 +35,6 @@
                     CookieAuthenticationDefaults.AuthenticationScheme, 
                     new ClaimsPrincipal(claimsIdentity), 
                     authProperties);
-
-                HttpContext.Session.SetString("UserId", user.UserId.ToString());
 
                 return RedirectToAction("Index", "Home");
             }
@@ -74,8 +71,7 @@
             
             var claims = new List<Claim>
             {   
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-                new Claim(ClaimTypes.Name, user.UserName)
+                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
             };
 
             var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
@@ -85,8 +81,6 @@
                 CookieAuthenticationDefaults.AuthenticationScheme, 
                 new ClaimsPrincipal(claimsIdentity), 
                 authProperties);
-
-            HttpContext.Session.SetString("UserId", user.UserId.ToString());
 
             return RedirectToAction("Index", "Home");
         }
