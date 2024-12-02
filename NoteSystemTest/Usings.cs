@@ -4,5 +4,6 @@ global using System.Linq;
 global using Xunit;
 global using MySql.Data.MySqlClient;
 global using NoteSystemDao;
-//global using NoteSystemDao.Interfaces;
+global using System.Reflection;
 global using NoteSystemDao.Orm;
+global using NoteSystemDao.Orm.MyAttributes;
