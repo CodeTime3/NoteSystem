@@ -1,36 +1,24 @@
 ﻿namespace NoteSystemDao.Orm
 {
-    public class GeneralCrud
+    public class GeneralCrud : IGeneralCrud
     {
-        private readonly MySqlConnection _connection;
+        private MySqlConnection _connection;
+        private GetNameTableAttribute _getNameTable;
+        private StringQueriesBuilderParameter _queryBuilder;
 
-        public GeneralCrud(MySqlConnection connection)
+        public GeneralCrud(MySqlConnection connection, GetNameTableAttribute getNameTable, StringQueriesBuilderParameter queryBuilder)
         {
             _connection = connection;
+            _getNameTable = getNameTable;
+            _queryBuilder = queryBuilder;
         }
         
         public int CreateItem<T>(T item)
-        {
-            Type type = item.GetType();
-            NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
-            PropertyInfo[] properties = type.GetProperties();
-            string columnList = "";
-            string parameterList = "(";
+        {   
+            var nameTable = _getNameTable.GetNameTable(GetGenericType(item));
+            var insertQueryParameter = _queryBuilder.CreateItemStringBuilder(GetPropertyInfos(GetGenericType(item)));
 
-            foreach (var property in properties)
-            {
-                if (property.GetCustomAttribute<IgnoreColumnAttribute>() == null)
-                {
-                    columnList += property.Name + ", ";
-                    parameterList += $"@{property.Name}, ";
-                }
-            }
-
-            columnList = columnList.TrimEnd(',', ' ');
-            parameterList = parameterList.TrimEnd(',', ' ');
-            parameterList += ")";
-
-            string cmdTxt = $@"insert into {tableOrm.Name} ({columnList}) values {parameterList}";
+            string cmdTxt = $@"insert into {nameTable} {insertQueryParameter}";
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
@@ -39,7 +27,7 @@
 					_connection.Open();
 				}
 
-				foreach (var property in properties)
+				foreach (var property in GetPropertyInfos(GetGenericType(item)))
                 {
                     cmd.Parameters.AddWithValue($@"@{property.Name}", property.GetValue(item));
                 }
@@ -49,22 +37,13 @@
         }
 
         public T ReadItem<T>(T item, object id)
-        {
-            Type type = typeof(T);
-            NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
-            PropertyInfo[] properties = type.GetProperties();
-
-            string selectString = "";
-
-            foreach (var property in properties)
-            {
-                if (property.GetCustomAttribute<SearchAttribute>() != null)
-                {
-                    selectString += property.Name;
-                }
-            }
+        {   
+            Type type = GetGenericType(item);
+            var nameTable = _getNameTable.GetNameTable(type);
+            var properties = GetPropertyInfos(GetGenericType(item));
+            var selectQueryParameter = _queryBuilder.ReadItemStringBuilder(properties, id);
             
-            string cmdTxt = $@"select * from {tableOrm.Name} where {selectString} like binary '%{id}%'";
+            string cmdTxt = $@"select * from {nameTable} {selectQueryParameter}";
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
 			{
@@ -84,7 +63,7 @@
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
-                    {
+                    {   
                         item = (T)Activator.CreateInstance(type);
 
                         for (int i = 0; i < reader.FieldCount; i++)
@@ -115,22 +94,12 @@
         public T[] ReadItems<T> (T item, object id)
         {
             List<T> items = new List<T>();
-            Type type = typeof (T);
+            Type type = GetGenericType(item);
+			var nameTable = _getNameTable.GetNameTable(GetGenericType(item));
+            var properties = GetPropertyInfos(GetGenericType(item));
+            var selectQueryParameter = _queryBuilder.ReadItemStringBuilder(properties, id);
 
-			NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
-			PropertyInfo[] properties = type.GetProperties();
-
-            string selectString = "";
-
-            foreach (var property in properties)
-            {
-                if (property.GetCustomAttribute<SearchAttribute>() != null)
-                {
-                    selectString += property.Name;
-                }
-            }
-
-            string cmdTxt = $@"select * from {tableOrm.Name} where {selectString} = {id}";
+            string cmdTxt = $@"select * from {nameTable} {selectQueryParameter}";
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
@@ -183,12 +152,11 @@
         public T[] ReadAllItems<T>(T item)
         {
             List<T> items = new List<T>();
-            Type type = typeof(T);
+            Type type = GetGenericType(item);
+			var nameTable = _getNameTable.GetNameTable(GetGenericType(item));
+            var properties = GetPropertyInfos(GetGenericType(item));
 
-            NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
-            PropertyInfo[] properties = type.GetProperties();
-
-            string cmdTxt = $@"select * from {tableOrm.Name}";
+            string cmdTxt = $@"select * from {nameTable}";
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
@@ -240,35 +208,10 @@
 
         public int UpdateItem<T>(T item, int id)
         {
-            Type type = item.GetType();
-            NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
-            PropertyInfo[] properties = type.GetProperties();
+            var nameTable = _getNameTable.GetNameTable(GetGenericType(item));
+            var updateQueryParameter = _queryBuilder.UpdateItemStringBuilder(GetPropertyInfos(GetGenericType(item)));
 
-            string columnId = "";
-            string columnList = "";
-            string parameterList = "";
-            string setFinalString = "";
-
-            foreach (var property in properties)
-            {
-                if (property.GetCustomAttribute<IgnoreColumnAttribute>() != null)
-                {
-                    columnId += property.Name;
-                }
-
-                if (property.GetCustomAttribute<IgnoreColumnAttribute>() == null)
-                {
-                    columnList += property.Name + " = ";
-                    parameterList += $"@{property.Name}" + ", ";
-                    setFinalString += columnList + parameterList;
-                    columnList = "";
-                    parameterList = "";
-                }
-            }
-
-            setFinalString = setFinalString.TrimEnd(',', ' ');
-
-            string cmdTxt = $@"update {tableOrm.Name} set {setFinalString} where {columnId} = @{columnId}";
+            string cmdTxt = $@"update {nameTable} {updateQueryParameter}";
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
@@ -277,7 +220,7 @@
 					_connection.Open();
 				}
 
-				foreach (var property in properties)
+				foreach (var property in GetPropertyInfos(GetGenericType(item)))
                 {
                     if (property.GetCustomAttribute<IgnoreColumnAttribute>() != null)
                     {
@@ -296,21 +239,10 @@
 
         public int DeleteItem<T>(T item, int id)
         {
-            Type type = item.GetType();
-            NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
-            PropertyInfo[] properties = type.GetProperties();
+            var nameTable = _getNameTable.GetNameTable(GetGenericType(item));
+            var deleteQueryParameter = _queryBuilder.DeleteItemStringBuilder(GetPropertyInfos(GetGenericType(item)));
 
-            string columnId = "";
-
-            foreach (var property in properties)
-            {
-                if (property.GetCustomAttribute<IgnoreColumnAttribute>() != null)
-                {
-                    columnId += property.Name;
-                }
-            }
-
-            var cmdTxt = $@"delete from {tableOrm.Name} where {columnId} = @{columnId}";
+            var cmdTxt = $@"delete from {nameTable} {deleteQueryParameter}";
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
@@ -319,11 +251,11 @@
 					_connection.Open();
 				}
 
-				foreach (var property in properties)
+				foreach (var property in GetPropertyInfos(GetGenericType(item)))
                 {
                     if (property.GetCustomAttribute<IgnoreColumnAttribute>() != null)
                     {
-                        cmd.Parameters.AddWithValue($@"@{columnId}", id);
+                        cmd.Parameters.AddWithValue($@"@{property.Name}", id);
                     }
                 }
 
@@ -333,21 +265,10 @@
 
         public int DeleteItems<T>(T item, int id)
         {
-            Type type = item.GetType();
-            NameTableAttribute tableOrm = (NameTableAttribute)Attribute.GetCustomAttribute(type, typeof(NameTableAttribute));
-            PropertyInfo[] properties = type.GetProperties();
+            var nameTable = _getNameTable.GetNameTable(GetGenericType(item));
+            var deleteQueryParameter = _queryBuilder.DeleteItemsStringBuilder(GetPropertyInfos(GetGenericType(item)));
 
-            string columnId = "";
-
-            foreach (var property in properties)
-            {
-                if (property.GetCustomAttribute<SearchAttribute>() != null)
-                {
-                    columnId += property.Name;
-                }
-            }
-
-            var cmdTxt = $@"delete from {tableOrm.Name} where {columnId} = @{columnId}";
+            var cmdTxt = $@"delete from {nameTable} {deleteQueryParameter}";           
 
             using (var cmd = new MySqlCommand(cmdTxt, _connection))
             {
@@ -356,16 +277,30 @@
 					_connection.Open();
 				}
 
-				foreach (var property in properties)
+				foreach (var property in GetPropertyInfos(GetGenericType(item)))
                 {
                     if (property.GetCustomAttribute<SearchAttribute>() != null)
                     {
-                        cmd.Parameters.AddWithValue($@"@{columnId}", id);
+                        cmd.Parameters.AddWithValue($@"@{property.Name}", id);
                     }
                 }
 
                 return cmd.ExecuteNonQuery();
             }
+        }
+        
+        private Type GetGenericType<T>(T item)
+        {
+            Type type = item.GetType();
+            
+            return type;
+        }
+
+        private PropertyInfo[] GetPropertyInfos(Type type)
+        {
+            PropertyInfo[] properties = type.GetProperties();
+
+            return properties;
         }
     }
 }
