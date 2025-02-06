@@ -1,16 +1,12 @@
 namespace NoteSystemWeb.Controllers
-{
-    public class HomeController(GeneralCrud crud) : Controller
+{   
+    [Authorize]
+    public class HomeController(IGeneralCrud crud) : Controller
     {   
         [HttpPost]
         public IActionResult CreateNote(string noteTitle, string noteText)
         {
-			var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if(userIdString is null)
-            {
-                return Json(new {success = true, messagge = "the user is not logged"});
-            }
-            var userId = int.Parse(userIdString);
+            var userId = GetUserId();
 
 			NoteDbItem note = new NoteDbItem(userId, noteTitle, noteText);
             crud.CreateItem(note);
@@ -22,18 +18,11 @@ namespace NoteSystemWeb.Controllers
         [HttpGet]
         public IActionResult ReadNotes()
         {   
-            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if(userIdString is null)
-            {
-                return Json(new {success = true, messagge = "0 notes"});
-            }
-            var userId = int.Parse(userIdString);
-
             NoteDbItem note = new NoteDbItem();
 
             var model = new NoteModel
             {
-                Notes = crud.ReadItems(note, userId)
+                Notes = crud.ReadItems(note, GetUserId())
             };
 
             return Json(model);
@@ -42,14 +31,7 @@ namespace NoteSystemWeb.Controllers
         [HttpPut]
         public IActionResult UpdateNote(int noteId, string noteTitle, string noteText)
         {   
-			var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if(userIdString is null)
-            {
-                return Json(new {success = true, messagge = "the user is not logged"});
-            }
-            var userId = int.Parse(userIdString);
-
-            NoteDbItem note = new NoteDbItem(noteId, userId, noteTitle, noteText);
+            NoteDbItem note = new NoteDbItem(noteId, GetUserId(), noteTitle, noteText);
             crud.UpdateItem(note, noteId);
 
             return Json(note);
@@ -88,6 +70,14 @@ namespace NoteSystemWeb.Controllers
         public IActionResult Index()
         {   
             return View();
+        }
+
+        private int GetUserId()
+        {
+            var userIdString = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userId = int.Parse(userIdString);
+
+            return userId;
         }
     }
 }
