@@ -7,7 +7,9 @@ namespace NoteSystemWeb
             var builder = WebApplication.CreateBuilder(args);
             string connectionString = builder.Configuration.GetConnectionString("MyDB");
             MySqlConnection connection = new MySqlConnection(connectionString);
-            GeneralCrud generalCrud = new GeneralCrud(connection);
+            GetNameTableAttribute getNameTable = new GetNameTableAttribute();
+            StringQueriesBuilderParameter stringQueriesBuilder = new StringQueriesBuilderParameter();
+            IGeneralCrud generalCrud = new GeneralCrud(connection, getNameTable, stringQueriesBuilder);
 
             builder.Services.AddScoped(sp => generalCrud);
             // Add services to the container.
@@ -40,6 +42,7 @@ namespace NoteSystemWeb
             app.UseRouting();
             
             app.UseAuthentication();
+            app.UseAuthorization();
 
             app.MapControllerRoute(
                 name: "default",
