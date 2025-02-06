@@ -1,9 +1,9 @@
 ﻿namespace NoteSystemWeb.Controllers
 {
-    public class AccountController(GeneralCrud crud) : Controller
+    public class AccountController(IGeneralCrud crud) : Controller
     {
         [HttpPost]
-        public async Task<IActionResult> Login(LoginModel login)
+        public IActionResult Login(LoginModel login)
         {   
             PasswordHasher<UserDbItem> passwordHasher = new PasswordHasher<UserDbItem>();
             UserDbItem user = new UserDbItem();
@@ -23,18 +23,7 @@
 
             if (user.UserName.Equals(login.Username) && hash is PasswordVerificationResult.Success)
             {   
-                var claims = new List<Claim>
-                {   
-                    new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
-                };
-
-                var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-                var authProperties = new AuthenticationProperties();
-
-                await HttpContext.SignInAsync(
-                    CookieAuthenticationDefaults.AuthenticationScheme, 
-                    new ClaimsPrincipal(claimsIdentity), 
-                    authProperties);
+                CreateCookie(user.UserId.ToString());
 
                 return RedirectToAction("Index", "Home");
             }
@@ -48,11 +37,10 @@
         }
 
         [HttpPost]
-        public async Task<IActionResult> SignUp(SignUpModel signUp)
+        public IActionResult SignUp(SignUpModel signUp)
         {
             PasswordHasher<UserDbItem> passwordHasher = new PasswordHasher<UserDbItem>();
             UserDbItem user = new UserDbItem();
-            string hash = passwordHasher.HashPassword(user, signUp.Password);
             var users = crud.ReadAllItems(user);
             foreach (var usr in users)
             {
@@ -65,22 +53,12 @@
                     return View(signUp);
                 }
             }
+            string hash = passwordHasher.HashPassword(user, signUp.Password);
             user = new UserDbItem(signUp.Username, hash);
             crud.CreateItem(user);
             user = crud.ReadItem(user, signUp.Username);
             
-            var claims = new List<Claim>
-            {   
-                new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString())
-            };
-
-            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
-            var authProperties = new AuthenticationProperties();
-
-            await HttpContext.SignInAsync(
-                CookieAuthenticationDefaults.AuthenticationScheme, 
-                new ClaimsPrincipal(claimsIdentity), 
-                authProperties);
+            CreateCookie(user.UserId.ToString());
 
             return RedirectToAction("Index", "Home");
         }
@@ -128,6 +106,22 @@
         public IActionResult Index()
         {
             return View();
+        }
+
+        private async void CreateCookie(string id)
+        {
+            var claims = new List<Claim>
+            {   
+                new Claim(ClaimTypes.NameIdentifier, id)
+            };
+
+            var claimsIdentity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+            var authProperties = new AuthenticationProperties();
+
+            await HttpContext.SignInAsync(
+                CookieAuthenticationDefaults.AuthenticationScheme, 
+                new ClaimsPrincipal(claimsIdentity), 
+                authProperties);
         }
     }
 }
