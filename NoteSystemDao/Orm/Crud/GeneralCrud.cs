@@ -50,20 +50,12 @@
                 if (_connection.State == ConnectionState.Closed)
                 {   
                     _connection.Open();
-                }               
-
-                foreach (var property in properties)
-                {
-                    if (property.GetCustomAttribute<SearchAttribute>() == null)
-                    {
-                        cmd.Parameters.AddWithValue($@"@{property.Name}", property.GetValue(item));
-                    }
-                }
-
+                }                       
+                
                 using (var reader = cmd.ExecuteReader())
                 {
                     while (reader.Read())
-                    {   
+                    {
                         item = (T)Activator.CreateInstance(type);
 
                         for (int i = 0; i < reader.FieldCount; i++)
@@ -107,14 +99,6 @@
 				{
 					_connection.Open();
 				}
-
-                foreach (var property in properties)
-                {
-                    if (property.GetCustomAttribute<SearchAttribute>() == null)
-                    {
-                        cmd.Parameters.AddWithValue($@"@{property.Name}", property.GetValue(item));
-                    }
-                }      
 
                 using (var reader = cmd.ExecuteReader())
                 {
@@ -164,14 +148,6 @@
 				{
 					_connection.Open();
 				}
-
-				foreach (var property in properties)
-                {
-                    if (property.GetCustomAttribute<IgnoreColumnAttribute>() == null)
-                    {
-                        cmd.Parameters.AddWithValue($@"@{property.Name}", property.GetValue(item));
-                    }
-                }
 
                 using (var reader = cmd.ExecuteReader())
                 {
